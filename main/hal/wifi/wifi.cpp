@@ -272,8 +272,6 @@ namespace HAL
             return false;
         }
 
-        esp_wifi_set_ps(WIFI_PS_NONE);
-
         _status = WIFI_STATUS_CONNECTING;
 
         if (_status_callback)
