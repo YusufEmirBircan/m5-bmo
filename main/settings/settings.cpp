@@ -79,7 +79,7 @@ namespace SETTINGS
              TYPE_STRING,
              "gemini-3.1-flash-live-preview",
              "",
-             "gemini-3.1-flash-live-preview;gemini-2.5-flash-native-audio-preview-12-2025",
+             "gemini-3.1-flash-live-preview;gemini-live-2.5-flash-native-audio",
              "100",
              "Model name. Live models for S2S voice mode. Hold [Fn] to enter custom"},
             {"voice",
