@@ -671,23 +671,23 @@ static void s2s_client_task(void* parameter)
 
         // Pre-buffer: let the ring buffer fill before starting the speaker
         // to absorb network burst variability and prevent early underruns.
-        {
-            const size_t PRE_BUFFER_BYTES = 12000; // ~250ms at 24kHz 16-bit
-            TickType_t deadline = xTaskGetTickCount() + pdMS_TO_TICKS(1500);
-            while (xTaskGetTickCount() < deadline)
-            {
-                bits = xEventGroupGetBits(ctx->event_group);
-                if (bits & (S2S_STOP_REQUEST_BIT | S2S_ERROR_BIT |
-                            S2S_INTERRUPTED_BIT | S2S_USER_INTERRUPT_BIT))
-                    break;
-                if (bits & S2S_TURN_COMPLETE_BIT)
-                    break;
-                size_t free_bytes = xRingbufferGetCurFreeSize(ctx->spk_ring_buffer);
-                if (AUDIO_BUFFER_SIZE - free_bytes >= PRE_BUFFER_BYTES)
-                    break;
-                vTaskDelay(pdMS_TO_TICKS(10));
-            }
-        }
+        // {
+        //     const size_t PRE_BUFFER_BYTES = 12000; // ~250ms at 24kHz 16-bit
+        //     TickType_t deadline = xTaskGetTickCount() + pdMS_TO_TICKS(2000);
+        //     while (xTaskGetTickCount() < deadline)
+        //     {
+        //         bits = xEventGroupGetBits(ctx->event_group);
+        //         if (bits & (S2S_STOP_REQUEST_BIT | S2S_ERROR_BIT |
+        //                     S2S_INTERRUPTED_BIT | S2S_USER_INTERRUPT_BIT))
+        //             break;
+        //         if (bits & S2S_TURN_COMPLETE_BIT)
+        //             break;
+        //         size_t free_bytes = xRingbufferGetCurFreeSize(ctx->spk_ring_buffer);
+        //         if (AUDIO_BUFFER_SIZE - free_bytes >= PRE_BUFFER_BYTES)
+        //             break;
+        //         vTaskDelay(pdMS_TO_TICKS(20));
+        //     }
+        // }
 
         vTaskDelay(pdMS_TO_TICKS(20));
         ctx->hal->speaker()->begin();
