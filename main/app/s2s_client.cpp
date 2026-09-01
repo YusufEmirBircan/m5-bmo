@@ -19,7 +19,7 @@ static const char* TAG = "S2S";
 #define MIC_BUF_SAMPLES 256
 #define MIC_REC_BLOCKS 3
 #define PCM_SEND_BYTES 3200 // 100ms at 16kHz 16-bit mono
-#define PLAY_CHUNK_SIZE 1024
+#define PLAY_CHUNK_SIZE 2048
 
 #define WS_BUFFER_SIZE 4096
 #define MSG_BUF_CAPACITY (1024 * 28)
@@ -672,7 +672,7 @@ static void s2s_client_task(void* parameter)
         // Pre-buffer: let the ring buffer fill before starting the speaker
         // to absorb network burst variability and prevent early underruns.
         {
-            const size_t PRE_BUFFER_BYTES = 6000; // ~120ms at 24kHz 16-bit
+            const size_t PRE_BUFFER_BYTES = 12000; // ~240ms at 24kHz 16-bit
             TickType_t deadline = xTaskGetTickCount() + pdMS_TO_TICKS(1500);
             while (xTaskGetTickCount() < deadline)
             {
@@ -706,7 +706,7 @@ static void s2s_client_task(void* parameter)
         // the data alive until the speaker is done. With 3 buffers and the
         // isPlaying()>=2 gate, the speaker can hold current + next while we
         // safely write to the third.
-        static int16_t play_buf[3][PLAY_CHUNK_SIZE / sizeof(int16_t)];
+        static int16_t play_buf[6][PLAY_CHUNK_SIZE / sizeof(int16_t)];
         int buf_idx = 0;
 
         while (true)

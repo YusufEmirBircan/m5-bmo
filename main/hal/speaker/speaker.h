@@ -35,7 +35,7 @@ namespace HAL
         int pin_ws = SPEAKER_PIN_WS;
 
         /// Output sampling rate (Hz)
-        uint32_t sample_rate = 48000;
+        uint32_t sample_rate = 24000;
 
         /// Use stereo output
         bool stereo = false;
