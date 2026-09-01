@@ -18,5 +18,7 @@ idf_component_register(SRCS "main.cpp" ${APP_SRCS} ${HAL_SRCS} ${SETTINGS_SRCS}
                     REQUIRES LovyanGFX nvs_flash esp_wifi esp_adc driver fatfs mbedtls mjson
                     EMBED_FILES sound/error.wav sound/snap.wav
                     WHOLE_ARCHIVE)
-                    
+
+target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-error -Wno-format -Wno-format-security)
+
 nvs_create_partition_image(apps_nvs ../apps_nvs.csv FLASH_IN_PROJECT)
