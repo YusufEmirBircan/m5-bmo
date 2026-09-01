@@ -17,13 +17,17 @@ jobs:
           submodules: recursive
 
       - name: Build Firmware
+        shell: bash
         run: |
+          . /opt/esp/idf/export.sh
           idf.py set-target esp32s3
           idf.py build
 
       - name: Merge Binaries
+        shell: bash
         working-directory: build
         run: |
+          . /opt/esp/idf/export.sh
           esptool.py --chip esp32s3 merge_bin -o M5Gemini_BMO_full.bin @flash_args
 
       - name: Upload Binaries
