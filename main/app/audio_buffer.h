@@ -8,8 +8,7 @@
 #define AUDIO_CHANNELS 1
 
 // Shared static buffer used by the S2S speaker ring buffer.
-// Sized for ~0.67s of 24kHz 16-bit mono output.
-// (portMAX_DELAY backpressure prevents data loss even with smaller buffer)
-#define AUDIO_BUFFER_SIZE (1024 * 32)
+// Sized for ~2.7s of 24kHz 16-bit mono output to eliminate jitter and audio stutter.
+#define AUDIO_BUFFER_SIZE (1024 * 128)
 
 extern uint8_t audio_buffer[AUDIO_BUFFER_SIZE];
