@@ -251,7 +251,6 @@ namespace lgfx
             trans->length = _cfg.cmd_bitsize;
             trans->tx_buffer = &lcd_cmd;
             trans->flags = 0; // DC is LOW
-            trans->override_freq_hz = freq;
 
             if (keep_cs_active)
             {
