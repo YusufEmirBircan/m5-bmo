@@ -274,6 +274,7 @@ void GeminiApp::update()
         break;
 
     case SCREEN_CHAT:
+    case SCREEN_BMO:
         // ── S2S state machine ──
         switch (_appState)
         {
@@ -433,18 +434,27 @@ void GeminiApp::update()
             break;
         }
 
-        need_update |= drawResponseScreen();
-        need_update |= drawAnimation(need_update);
-        handleResponseScreenInput();
-        need_update |= UTILS::HL_TEXT::hl_text_render(_hintTextContext,
-                                                      getHintForState(),
-                                                      0,
-                                                      _hal->canvas()->height() - HINT_HEIGHT,
-                                                      TFT_DARKGREY,
-                                                      TFT_WHITE,
-                                                      THEME_COLOR_BG);
-        if (need_update)
+        if (_currentScreen == SCREEN_BMO)
+        {
+            drawBMOScreen();
+            handleBMOScreenInput();
             _hal->canvas_update();
+        }
+        else
+        {
+            need_update |= drawResponseScreen();
+            need_update |= drawAnimation(need_update);
+            handleResponseScreenInput();
+            need_update |= UTILS::HL_TEXT::hl_text_render(_hintTextContext,
+                                                          getHintForState(),
+                                                          0,
+                                                          _hal->canvas()->height() - HINT_HEIGHT,
+                                                          TFT_DARKGREY,
+                                                          TFT_WHITE,
+                                                          THEME_COLOR_BG);
+            if (need_update)
+                _hal->canvas_update();
+        }
         break;
     }
 }
@@ -718,14 +728,11 @@ void GeminiApp::handleResponseScreenInput()
         }
         else if (_hal->keyboard()->isKeyPressing(KEY_NUM_DOWN))
         {
-            if (key_repeat_check(is_repeat, next_fire_ts, now))
-            {
-                if (_scrollPosition < _totalLines - maxVisibleLines)
-                {
-                    _scrollPosition++;
-                    is_rendered = false;
-                }
-            }
+            _hal->keyboard()->waitForRelease(KEY_NUM_DOWN);
+            _hal->playNextSound();
+            _currentScreen = SCREEN_BMO;
+            _bmoFace.reset();
+            is_rendered = false;
         }
         else if (_hal->keyboard()->isKeyPressing(KEY_NUM_LEFT))
         {
@@ -778,6 +785,56 @@ void GeminiApp::handleResponseScreenInput()
     else
     {
         is_repeat = false;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+// BMO Face Screen
+// ═══════════════════════════════════════════════════════════
+
+bool GeminiApp::drawBMOScreen()
+{
+    _bmoFace.render(_hal->canvas(), _appState, millis());
+    return true;
+}
+
+void GeminiApp::handleBMOScreenInput()
+{
+    _hal->keyboard()->updateKeyList();
+    _hal->keyboard()->updateKeysState();
+
+    if (_hal->keyboard()->isPressed())
+    {
+        if (_hal->keyboard()->isKeyPressing(KEY_NUM_UP))
+        {
+            _hal->keyboard()->waitForRelease(KEY_NUM_UP);
+            _hal->playNextSound();
+            _currentScreen = SCREEN_CHAT;
+            is_rendered = false;
+        }
+        else if (_hal->keyboard()->isKeyPressing(KEY_NUM_ESC) || _hal->keyboard()->isKeyPressing(KEY_NUM_BACKSPACE))
+        {
+            _hal->keyboard()->waitForRelease(KEY_NUM_ESC);
+            _hal->playNextSound();
+            stopS2S();
+            setState(APP_STATE_IDLE);
+            _partialPrompt = "";
+            _currentScreen = SCREEN_START;
+            is_rendered = false;
+        }
+        else if (_hal->keyboard()->isKeyPressing(KEY_NUM_ENTER))
+        {
+            _hal->keyboard()->waitForRelease(KEY_NUM_ENTER);
+            _hal->playNextSound();
+            if (_appState == APP_STATE_S2S_LISTENING || _appState == APP_STATE_S2S_SPEAKING)
+            {
+                xEventGroupSetBits(_control_event_group, S2S_USER_INTERRUPT_BIT);
+            }
+            else if (!_s2s_active)
+            {
+                startS2S();
+            }
+        }
     }
 }
 

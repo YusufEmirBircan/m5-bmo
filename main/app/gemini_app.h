@@ -13,12 +13,15 @@
 #include "freertos/semphr.h"
 #include "freertos/event_groups.h"
 
+#include "app/bmo_face.h"
+
 enum GeminiAppScreen
 {
     SCREEN_START,
     SCREEN_SETTINGS,
     SCREEN_QR_GEMINI,
     SCREEN_CHAT,
+    SCREEN_BMO,
 };
 
 enum AppState
@@ -82,6 +85,8 @@ private:
     void startS2S();
     void stopS2S();
 
+    BMO::BMOFace _bmoFace;
+
     // Drawing
     bool drawMainScreen();
     void handleMainScreenInput();
@@ -91,6 +96,9 @@ private:
     bool drawResponseScreen();
     void handleResponseScreenInput();
     void updateScrollPosition();
+
+    bool drawBMOScreen();
+    void handleBMOScreenInput();
 
     bool drawGeminiQRScreen();
     void handleApiKeyScreenInput();

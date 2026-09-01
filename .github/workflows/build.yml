@@ -1,0 +1,40 @@
+name: Build ESP32S3 M5Gemini BMO Firmware
+
+on:
+  push:
+    branches: [ "**" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: esp-idf build
+        uses: espressif/esp-idf-ci-action@v1
+        with:
+          esp_idf_version: v5.2.2
+          target: esp32s3
+          path: '.'
+
+      - name: Merge Binaries
+        run: |
+          pip install esptool
+          esptool.py --chip esp32s3 merge_bin -o build/M5Gemini_BMO_full.bin \
+            0x0 build/bootloader/bootloader.bin \
+            0x8000 build/partition_table/partition-table.bin \
+            0x9000 build/apps_nvs.bin \
+            0xe000 build/ota_data_initial.bin \
+            0x10000 build/M5Gemini.bin
+
+      - name: Upload Binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: M5Gemini_BMO_Firmware
+          path: |
+            build/M5Gemini_BMO_full.bin
+            build/M5Gemini.bin
